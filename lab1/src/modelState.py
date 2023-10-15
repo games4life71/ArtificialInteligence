@@ -40,7 +40,7 @@ def check_legal_move(state:ModelState,move:str,moved_cell:tuple):
         return True
     if state.lastMove == 'up' and move == 'down':
         return False
-    elif state.lastMove == 'down' and move == 'up':
+    elif state.lastMove == 'left' and move == 'right':
         return False
 
     return True
