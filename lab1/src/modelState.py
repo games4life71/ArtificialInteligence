@@ -13,7 +13,10 @@ class ModelState:
             for j in range(3):
                 if self.state[i][j] == 0:
                     return (i, j)
-
+    def __eq__(self, other):
+        return self.state == other.state
+    def __lt__(self, other):
+        return self.state < other.state
 
 def print_state(state):
     for row in state:
@@ -57,7 +60,12 @@ def transition_move(state: ModelState, move: str, moved_cell: tuple):
         # the move is illegal
         raise Exception('Illegal move')
     # swap the 0 with the cell according to the move
-    new_state = state.state
+    #copy the state
+
+    new_state =[]
+    for row in state.state:
+        new_state.append(row.copy())
+
     # swap the values of the cells
     if move == 'up':
         new_state[moved_cell[0]][moved_cell[1]] = new_state[moved_cell[0] - 1][moved_cell[1]]
@@ -176,10 +184,10 @@ def depth_limited_DFS(current_state: ModelState, depth, visited):
     return None
 
 
-initialState = ModelState(transform_input([8, 6, 7, 2, 5, 4, 0, 3, 1]), None)
-sol = IDDFS(initialState, 25)
-if sol is not None:
-    print('Solution found ! ')
-    print_state(sol.state)
-# print(check_final_state(initialState))
-# initialState = ModelState([[1,2,4],[3,0,5],[6,7,8]], None)
+# initialState = ModelState(transform_input([8, 6, 7, 2, 5, 4, 0, 3, 1]), None)
+# sol = IDDFS(initialState, 25)
+# if sol is not None:
+#     print('Solution found ! ')
+#     print_state(sol.state)
+# # print(check_final_state(initialState))
+# # initialState = ModelState([[1,2,4],[3,0,5],[6,7,8]], None)
