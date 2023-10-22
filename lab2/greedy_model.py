@@ -116,7 +116,7 @@ def greedy_algorithm(init_state, heuristic):
 
 import time
 start = time.time()
-solution = greedy_algorithm(ms.ModelState(ms.transform_input([2, 5, 3, 1, 0, 6, 4, 7, 8]), None),
+solution = greedy_algorithm(ms.ModelState(ms.transform_input([7, 4, 1, 3, 2, 5, 0, 6, 8]), None),
                            compute_hammings_euristic)
 print("Time elapsed: ", time.time() - start, "seconds")
 # print(compute_manhattan_euristic([8, 6, 7, 2, 5, 4, 0, 3, 1]))
