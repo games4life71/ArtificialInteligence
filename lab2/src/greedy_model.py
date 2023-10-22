@@ -1,4 +1,7 @@
+import datetime
+
 from ArtificialInteligence.lab1.src import modelState as ms
+from queue import PriorityQueue
 
 
 # generate all the possible end states
@@ -40,6 +43,24 @@ def get_coords(state, element):
                 return i, j
 
 
+def compute_chebysev2states(mystate, final_state):
+    distance = 0
+    for i in range(0, 3):
+        for j in range(0, 3):
+            x1, y1 = get_coords(mystate, mystate[i][j])
+            x2, y2 = get_coords(final_state, mystate[i][j])
+            distance += max(abs(x1 - x2), abs(y1 - y2))
+
+    return distance
+
+
+def compute_chebysev_euristic(state):
+    distance = 0
+    for final_state in FINAL_STATES:
+        distance += compute_chebysev2states(state, final_state)
+    return distance / 9
+
+
 def compute_manhattan2states(mystate, final_state):
     distance = 0
     for i in range(0, 3):
@@ -52,7 +73,7 @@ def compute_manhattan2states(mystate, final_state):
 
 
 def compute_hammings2states(state, final_state):
-    #compute the number of elements that are not in the right position
+    # compute the number of elements that are not in the right position
     distance = 0
     for i in range(0, 3):
         for j in range(0, 3):
@@ -67,8 +88,10 @@ def compute_hammings_euristic(state):
         distance += compute_hammings2states(state, final_state)
     return distance / 9
 
+
 # print(compute_manhattan_euristic([1, 2, 3, 4, 5, 6, 7, 8, 0]))
-from queue import PriorityQueue
+
+recorded_moves = []
 
 
 def greedy_algorithm(init_state, heuristic):
@@ -80,6 +103,7 @@ def greedy_algorithm(init_state, heuristic):
     while not pq.empty():
         # get the state with the lowest heuristic
         value = pq.get()
+        recorded_moves.append(value[1])
         state = value[1]
         steps += 1
         # copy_state = state
@@ -87,7 +111,7 @@ def greedy_algorithm(init_state, heuristic):
         # state = pq.get()[1]  # get the state with the lowest heuristic
         # print(type(state),"tipulstate")
         if ms.check_final_state(state):
-            return state,steps
+            return state, steps
 
         possible_moves_array = ms.possible_moves(state)
         # print(possible_moves_array, "possible moves")
@@ -113,18 +137,3 @@ def greedy_algorithm(init_state, heuristic):
                 pq.put((heuristic_value, new_state))
 
     return None
-
-import time
-start = time.time()
-solution = greedy_algorithm(ms.ModelState(ms.transform_input([7, 4, 1, 3, 2, 5, 0, 6, 8]), None),
-                           compute_hammings_euristic)
-print("Time elapsed: ", time.time() - start, "seconds")
-# print(compute_manhattan_euristic([8, 6, 7, 2, 5, 4, 0, 3, 1]))
-if solution[0] is None:
-    print("No solution found")
-else:
-   ms.print_state(solution[0].state)
-   print("Steps: ",solution[1])
-
-
-
