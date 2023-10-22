@@ -23,7 +23,6 @@ def print_state(state):
         print(row)
     print('\n')
 
-
 def check_legal_move(state: ModelState, move: str, moved_cell: tuple):
     # check if the move is legal for this state
     if move == 'up':
@@ -53,7 +52,6 @@ def check_legal_move(state: ModelState, move: str, moved_cell: tuple):
 
     return True
 
-
 def transition_move(state: ModelState, move: str, moved_cell: tuple):
     # check for the legality of the move
     if not check_legal_move(state, move, moved_cell):
@@ -82,7 +80,6 @@ def transition_move(state: ModelState, move: str, moved_cell: tuple):
     new_state = ModelState(new_state, move)
     return new_state
 
-
 # a function that returns the possible moves for a given state
 def possible_moves(state: ModelState):
     # get the position of the 0 in the state
@@ -100,7 +97,6 @@ def possible_moves(state: ModelState):
 
     return possible_moves
 
-
 def check_final_state(current_state: ModelState):
     # check if the state is the final state
     # transform the 2d array into a 1d array
@@ -115,9 +111,7 @@ def check_final_state(current_state: ModelState):
             return False
     return True
 
-
 # define an initial state as a global variable
-
 
 def transform_input(input_array: list):
     # transform the input array into a 2d array
@@ -129,7 +123,6 @@ def transform_input(input_array: list):
         state.append(row)
     return state
 
-
 # implement IDDFS algorithm
 def IDDFS(initialState: ModelState, max_depth):
     for depth in (0, max_depth):
@@ -140,18 +133,19 @@ def IDDFS(initialState: ModelState, max_depth):
 
     return None
 
-
 def print_linear_state(state):
     for cell in state:
         print(cell, end=' ')
     print('\n')
 
+steps_made = 0
+moves_made = []
 
-def depth_limited_DFS(current_state: ModelState, depth, visited):
+def depth_limited_DFS(current_state: ModelState, depth, visited,steps_made=0):
     # check if the current state is the final state
     if check_final_state(current_state):
         # print_state(new_state.state)
-        return current_state
+        return current_state, steps_made, moves_made
 
     # check if the depth is 0
     if depth == 0:
@@ -178,16 +172,8 @@ def depth_limited_DFS(current_state: ModelState, depth, visited):
             visited.append(new_state)
             print_linear_state(new_state.state)
             # call the function recursively
-            sol = depth_limited_DFS(new_state, depth - 1, visited)
+            sol = depth_limited_DFS(new_state, depth - 1, visited,steps_made+1)
             if sol is not None:
                 return sol
     return None
 
-
-# initialState = ModelState(transform_input([8, 6, 7, 2, 5, 4, 0, 3, 1]), None)
-# sol = IDDFS(initialState, 25)
-# if sol is not None:
-#     print('Solution found ! ')
-#     print_state(sol.state)
-# # print(check_final_state(initialState))
-# # initialState = ModelState([[1,2,4],[3,0,5],[6,7,8]], None)
