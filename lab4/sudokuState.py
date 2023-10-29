@@ -62,11 +62,13 @@ def generate_instance(problem_file_name, solved_file_name):
 
         line_index += 1
 
+
 def printTable(table):
     for row in range(9):
         for column in range(9):
             print(table[row][column], end=" ")
         print()
+
 
 def find_first_empty_cell(current_table):
     for row in range(9):
@@ -242,11 +244,76 @@ def backtracking_with_forward_check(current_table, current_domains):
     return None
 
 
+def backtracking_with_forward_checkMRV(current_table, current_domains):
+    printTable(current_table)
+    print()
+
+    if is_complete(current_table):  #
+        # print("complete")
+        return current_table
+
+    # next_row, next_column, cell_color = find_first_empty_cell(current_table)
+    next_row,next_column,cell_color = find_first_empty_cell_mrv(current_table,current_domains)
+    possible_values = current_domains[next_row][next_column]  # the domain of the cell
+    # print("pos val", possible_values, "for cell ", next_row, next_column)
+
+    for value in possible_values:
+        #    print("trying value ", value, "for cell ", next_row, next_column)
+        if consistent_value(current_table, next_row, next_column, value):
+            # print("value fit ", value, "for cell ", next_row, next_column)
+            # current_table[next_row][next_column] = value # update the table
+            # make a new table
+            new_table = copy.deepcopy(current_table)
+            new_table[next_row][next_column] = value
+            printTable(new_table)
+            print()
+            # update the domains
+
+            new_domain = update_domains(next_row, next_column, value, current_domains)
+            # print("current_domains", current_domains)
+            # print()
+            # print("new domain", new_domain)
+
+            if not check_empty_domains(new_domain, new_table):
+
+                result = backtracking_with_forward_check(new_table, new_domain)
+
+                if result is not None:
+                    # print("result", result)
+                    return result
+
+            # print("backtrack -- found empty domain")
+            printTable(current_table)
+            print()
+            # current_table[next_row][next_column] = cell_color
+            # # update the domains back
+            # print("restoring value ", value, "for cell ", next_row, next_column)
+            # restore_value_in_domains(next_row, next_column, value, new_domain)
+            # print(current_domains, "current domains")
+    return None
+
+
+# implement MRV heuristic for choosing the next cell to fill
+
+def find_first_empty_cell_mrv(current_table, current_domains):
+    min_domain = 10
+    min_row = -1
+    min_column = -1
+    for row in range(9):
+        for column in range(9):
+            if current_table[row][column] == 0 or current_table[row][column] == -1:
+                if len(current_domains[row][column]) < min_domain:
+                    min_domain = len(current_domains[row][column])
+                    min_row = row
+                    min_column = column
+    return min_row, min_column, current_table[min_row][min_column]
+
+
 generate_instance("instance1", "instance1_solved")
 # printTable(TABLE)
 print()
 init_domains(TABLE)
-my_solution = backtracking_with_forward_check(TABLE, domains)
+my_solution = backtracking_with_forward_checkMRV(TABLE, domains)
 # printTable(TABLE)
 
 import_solution("instance1")
