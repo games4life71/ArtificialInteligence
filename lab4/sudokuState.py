@@ -7,10 +7,12 @@ TABLE = [[0 for x in range(9)] for y in range(9)]
 # -1 for grey empty cells even numbers
 # 0 for white empty cells
 SOLUTION = [[0 for x in range(9)] for y in range(9)]
+INITAL_TABLE = [[0 for x in range(9)] for y in range(9)]
 
 
+# util function to import the solution from the file
 def import_solution(problem_file_name):
-    solution_file = open("instances/" + problem_file_name + "_solved.txt", "r")
+    solution_file = open("instances/" + problem_file_name + ".txt", "r")
     lines = solution_file.readlines()
     line_index = 0
     for line in lines:
@@ -22,6 +24,7 @@ def import_solution(problem_file_name):
         line_index += 1
 
 
+# util function to compare two tables
 def compare_tables(table1, table2):
     for row in range(9):
         for column in range(9):
@@ -31,9 +34,7 @@ def compare_tables(table1, table2):
     return True
 
 
-INITAL_TABLE = [[0 for x in range(9)] for y in range(9)]
-
-
+# util function to generate a from a problem file and a solution file
 def generate_instance(problem_file_name, solved_file_name):
     problem = open("instances/" + problem_file_name + ".txt", "r")
     solved = open("instances/" + solved_file_name + ".txt", "r")
@@ -196,9 +197,6 @@ def update_domains(row, column, value, current_domains_param):
 
 
 def backtracking_with_forward_check(current_table, current_domains):
-    printTable(current_table)
-    print()
-
     if is_complete(current_table):  #
         # print("complete")
         return current_table
@@ -211,68 +209,42 @@ def backtracking_with_forward_check(current_table, current_domains):
     for value in possible_values:
         #    print("trying value ", value, "for cell ", next_row, next_column)
         if consistent_value(current_table, next_row, next_column, value):
-            # print("value fit ", value, "for cell ", next_row, next_column)
-            # current_table[next_row][next_column] = value # update the table
-            # make a new table
+
             new_table = copy.deepcopy(current_table)
             new_table[next_row][next_column] = value
-            printTable(new_table)
-            print()
+
             # update the domains
 
             new_domain = update_domains(next_row, next_column, value, current_domains)
-            # print("current_domains", current_domains)
-            # print()
-            # print("new domain", new_domain)
 
             if not check_empty_domains(new_domain, new_table):
 
                 result = backtracking_with_forward_check(new_table, new_domain)
 
                 if result is not None:
-                    # print("result", result)
                     return result
 
-            # print("backtrack -- found empty domain")
-            printTable(current_table)
-            print()
-            # current_table[next_row][next_column] = cell_color
-            # # update the domains back
-            # print("restoring value ", value, "for cell ", next_row, next_column)
-            # restore_value_in_domains(next_row, next_column, value, new_domain)
-            # print(current_domains, "current domains")
     return None
 
 
 def backtracking_with_forward_checkMRV(current_table, current_domains):
-    printTable(current_table)
-    print()
-
     if is_complete(current_table):  #
         # print("complete")
         return current_table
 
-    # next_row, next_column, cell_color = find_first_empty_cell(current_table)
-    next_row,next_column,cell_color = find_first_empty_cell_mrv(current_table,current_domains)
+    next_row, next_column, cell_color = find_first_empty_cell_mrv(current_table, current_domains)
     possible_values = current_domains[next_row][next_column]  # the domain of the cell
-    # print("pos val", possible_values, "for cell ", next_row, next_column)
 
     for value in possible_values:
-        #    print("trying value ", value, "for cell ", next_row, next_column)
+
         if consistent_value(current_table, next_row, next_column, value):
-            # print("value fit ", value, "for cell ", next_row, next_column)
-            # current_table[next_row][next_column] = value # update the table
-            # make a new table
+
             new_table = copy.deepcopy(current_table)
             new_table[next_row][next_column] = value
-            printTable(new_table)
-            print()
+
             # update the domains
 
             new_domain = update_domains(next_row, next_column, value, current_domains)
-            # print("current_domains", current_domains)
-            # print()
-            # print("new domain", new_domain)
 
             if not check_empty_domains(new_domain, new_table):
 
@@ -282,14 +254,6 @@ def backtracking_with_forward_checkMRV(current_table, current_domains):
                     # print("result", result)
                     return result
 
-            # print("backtrack -- found empty domain")
-            printTable(current_table)
-            print()
-            # current_table[next_row][next_column] = cell_color
-            # # update the domains back
-            # print("restoring value ", value, "for cell ", next_row, next_column)
-            # restore_value_in_domains(next_row, next_column, value, new_domain)
-            # print(current_domains, "current domains")
     return None
 
 
@@ -308,14 +272,17 @@ def find_first_empty_cell_mrv(current_table, current_domains):
                     min_column = column
     return min_row, min_column, current_table[min_row][min_column]
 
-
-generate_instance("instance1", "instance1_solved")
+#
+# generate_instance("instance_hard", "instance_hard_solved")
+# print("initial table")
 # printTable(TABLE)
-print()
-init_domains(TABLE)
-my_solution = backtracking_with_forward_checkMRV(TABLE, domains)
-# printTable(TABLE)
-
-import_solution("instance1")
-# printTable(SOLUTION)
-print(compare_tables(my_solution, SOLUTION))
+# print()
+# init_domains(TABLE)
+# my_solution = backtracking_with_forward_check(TABLE, domains)
+# # printTable(TABLE)
+#
+# import_solution("instance_hard")
+# printTable(my_solution)
+# print("solution")
+#
+# print(compare_tables(my_solution, SOLUTION))
