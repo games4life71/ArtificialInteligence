@@ -148,34 +148,56 @@ def game_with_minimax():
     player = "A"
     win = False
     while len(choices) > 0:
+
         for i in range(3):
             print(current_state[i])
         print()
-        if player == "A":  # A players turn
-            next_move = my_heuristic(current_state, player)
-            new_state = make_move(player, next_move, current_state)
-            if validate_move(player, next_move):
-                current_state = new_state
-                player = "B"
-                choices.remove(next_move)
 
+        if player == "A":  # A players turn
+            # next_move = my_heuristic(current_state, player)
+            # new_state = make_move(player, next_move, current_state)
+            # if validate_move(player, next_move):
+            #     current_state = new_state
+            #     player = "B"
+            #     choices.remove(next_move)
+            print("Possible moves: ", choices)
+            print()
+            move = input("A's turn: ")
+            move = int(move)
+            new_state = make_move(player, move, current_state)
+            if validate_move(player, move):
+                current_state = new_state
+                if verify_win(player, current_state):
+                    print("Player ", player, " has won!")
+                    win = True
+                    break
+                player = "B"
+                choices.remove(move)
 
         else:
-            next_move = minimax(current_state, True, 6, choices)[1]
+            next_move = minimax(current_state, True, 200, choices)[1]
             new_state = make_move(player, next_move, current_state)
             if validate_move(player, next_move):
                 current_state = new_state
+                if verify_win(player, current_state):
+                    print("Player ", player, " has won!")
+                    win = True
+                    break
                 player = "A"
                 choices.remove(next_move)
 
-        if verify_win(player, current_state):
-            print("Player ", player, " has won!")
-            win = True
-            break
     if not win:
         print("Draw!")
 
     return current_state
+
+
+def check_draw(current_table):
+    for i in range(3):
+        for j in range(3):
+            if current_table[i][j] == 0:
+                return False
+    return True
 
 
 def minimax(current_table, is_max_player, depth, current_choices):
@@ -186,6 +208,8 @@ def minimax(current_table, is_max_player, depth, current_choices):
 
     elif depth == 0 or verify_win("B", current_table):
         return my_heuristic_minmax(current_table, "B")
+    elif check_draw(current_table):
+        return 0, 0
 
     if is_max_player:
         value = -math.inf
@@ -204,7 +228,7 @@ def minimax(current_table, is_max_player, depth, current_choices):
             # print(minimax_result,"result")
             value = min(value, minimax_result[0])
 
-    return value,choice
+    return value, choice
 
 
 final_board = game_with_minimax()
