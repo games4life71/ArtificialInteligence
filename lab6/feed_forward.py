@@ -16,6 +16,7 @@ def extract_data(file_name):
         data[index][7] = int(data[index][7])
         index += 1
     f.close()
+    # data = np.array(data)
     return data
 
 
@@ -25,7 +26,7 @@ def print_data(data):
 
 
 def split_data(data, ratio):
-    output_1= []
+    output_1 = []
     output_2 = []
     output_3 = []
     for item in data:
@@ -56,31 +57,61 @@ def split_data(data, ratio):
     return training, test
 
 
+# a function that calculates the output of the node (based on its inputs and the weights on individual inputs)
+# This is important as it makes understanding how relevant is every value from a vector.
 def softmax(x):
     # transform list to numpy array
-    x = np.array(x)
-    # cut the last column with the expected output
-    x = x[:, :-1]
-    s = np.max(x, axis=1)
-    s = s[:, np.newaxis]  # necessary step to do broadcasting
-    e_x = np.exp(x - s)
-    div = np.sum(e_x, axis=1)
-    div = div[:, np.newaxis]  # dito
+    v = np.array(x)
+    # cut the last column of the copy with the expected output
+    v = v[:, :-1]
+    s = np.max(v, axis=1, keepdims=True)
+    e_x = np.exp(v - s)
+    div = np.sum(e_x, axis=1, keepdims=True)
     return e_x / div
 
 
-def initialize_params():
-    nr_input_layer = 7   # 7 atribute de
-    nr_output_layer = softmax(training_data)
-    nr_output_neurons_per_layer = 3  # 3 clase
-    alpha = 2
-    nr_hidden_layers = (len(training_data)-1) / (alpha * (nr_input_layer + nr_output_layer))
-    nr_hidden_neurons_per_layer = (2//3)*nr_input_layer + nr_output_layer
-    learning_rate = 0.1
-    max_epochs = 1000
-    weights_input_hidden = 0
+# for the gradient descent we need the derivative of the softmax function
+def softmax_derivative(x):
+    s = softmax(x)
+    # Reshape the softmax vector to a column vector
+    s = s.reshape(-1, 1)
+
+    # Compute the Jacobian matrix
+    jacobian_matrix = np.diagflat(s) - np.dot(s, s.T)
+
+    return jacobian_matrix
+
+
+def initialize_params(input_layer, hidden_neurons_per_layer):
+    # how powerful is a connection between the input layer and the hidden layer
+    weights = []
+    # the constant which is added to the product of features and weights.
+    bias = []
+    # xavier initialization
+    for i in range(nr_hidden_layers):
+        if i == 0:
+            weights.append(np.random.randn(input_layer, hidden_neurons_per_layer) * np.sqrt(1 / input_layer))
+            bias.append(np.random.randn(hidden_neurons_per_layer) * np.sqrt(1 / input_layer))
+        else:
+            weights.append(np.random.randn(hidden_neurons_per_layer, hidden_neurons_per_layer) * np.sqrt(
+                1 / hidden_neurons_per_layer))
+            bias.append(np.random.randn(hidden_neurons_per_layer) * np.sqrt(1 / hidden_neurons_per_layer))
+
+    return weights, bias
+
+
+# the difference between the desired output of the neural network and the actual output
+def error_function(training_data, weights, bias):
+    pass
+
 
 
 data = extract_data("seeds_dataset.txt")
 training_data, test_data = split_data(data, 0.8)
-
+nr_input_layer = 7  # 7 atribute de intrare
+nr_output_layer = 3  # 3 clase
+nr_hidden_layers = 2
+nr_hidden_neurons_per_layer = int((2 / 3) * nr_input_layer + nr_output_layer)
+learning_rate = 0.1
+max_epochs = 1000
+weights, bias = initialize_params(nr_input_layer, nr_hidden_neurons_per_layer)
