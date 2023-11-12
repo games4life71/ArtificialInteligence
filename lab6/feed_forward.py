@@ -100,10 +100,17 @@ def initialize_params(input_layer, hidden_neurons_per_layer):
     return weights, bias
 
 
-# the difference between the desired output of the neural network and the actual output
-def error_function(training_data, weights, bias):
+def cross_entropy(weights, bias, training_data):
     pass
 
+
+def forward_propagation(instance, weights, activation_func):
+    values = [instance.copy()]
+    for x in weights:
+        values.append(np.matmul(values[-1], x))
+        for index, i in enumerate(values[-1]):
+            values[-1][index] = activation_func(i)
+    return values
 
 
 data = extract_data("seeds_dataset.txt")
@@ -115,3 +122,5 @@ nr_hidden_neurons_per_layer = int((2 / 3) * nr_input_layer + nr_output_layer)
 learning_rate = 0.1
 max_epochs = 1000
 weights, bias = initialize_params(nr_input_layer, nr_hidden_neurons_per_layer)
+
+print(cross_entropy(weights, bias, training_data))
