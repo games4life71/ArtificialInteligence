@@ -12,9 +12,11 @@ def get_3x3_pos(number):
 
 
 def verify_win(player, current_table):
+
     for i in range(3):
         # check row
         if current_table[i][0] == current_table[i][1] == current_table[i][2] == player:
+
             return True
         # check column
         if current_table[0][i] == current_table[1][i] == current_table[2][i] == player:
@@ -44,7 +46,7 @@ def validate_move(player, number):
     return False
 
 
-def count_empty_directions(current_table: list):
+def count_empty_directions(current_table):
     empty_directions = 0
     # check for empty rows
     for i in range(3):
@@ -62,6 +64,7 @@ def count_empty_directions(current_table: list):
 def my_heuristic(current_table, player):
     max_value = -math.inf
     best_choice = 0
+    print("Possible moves: ", choices)
     # for each possible move
     for choice in choices:
         # check how many directions are open for me and for the opponent
@@ -70,7 +73,7 @@ def my_heuristic(current_table, player):
         temp_table = make_move(player, choice, current_table)
 
         open_for_opponent = count_empty_directions(temp_table)
-
+        print(open_for_opponent, "open for opponent")
         if open_for_me - open_for_opponent > max_value:
             max_value = open_for_me - open_for_opponent
             best_choice = choice
@@ -79,22 +82,36 @@ def my_heuristic(current_table, player):
 
 
 def my_heuristic_minmax(current_table, player):
-    max_value = -math.inf
+    max_value = -9999
     best_choice = 0
+    # if verify_win("A", current_table):
+    #     return 100, 0
+    # elif verify_win("B", current_table):
+    #     return -100, 0
+    if player == "A" and verify_win("A", current_table):
+        return 100, 0
+    elif player == "B" and verify_win("B", current_table):
+        return -100, 0
+
     # for each possible move
-    for choice in choices:
+    for choice_here in choices:
         # check how many directions are open for me and for the opponent
         open_for_me = count_empty_directions(current_table)
-
-        temp_table = make_move(player, choice, current_table)
+        # print_table(current_table)
+        #print(open_for_me, "open for me")
+        temp_table = make_move(player, choice_here, current_table)
 
         open_for_opponent = count_empty_directions(temp_table)
-
+        # print(open_for_opponent, "open for opponent")
         if open_for_me - open_for_opponent > max_value:
             max_value = open_for_me - open_for_opponent
-            best_choice = choice
-
+            best_choice = choice_here
+            print("max val",max_value)
     return max_value, best_choice
+def print_table(table):
+    for i in range(3):
+        print(table[i])
+    print()
 
 
 def simple_game():
@@ -175,16 +192,28 @@ def game_with_minimax():
                 choices.remove(move)
 
         else:
-            next_move = minimax(current_state, True, 200, choices)[1]
-            new_state = make_move(player, next_move, current_state)
-            if validate_move(player, next_move):
+            best_move = None
+            best_score = -9999
+            for mutare in choices:
+                choices_copy = copy.deepcopy(choices)
+                choices_copy.remove(mutare)
+                new_move = minimax(make_move(player, mutare, current_state), True, 4, choices_copy)
+                print("best new score", new_move[0], "for move", mutare)
+                if new_move[0] > best_score:
+                    best_score = new_move[0]
+                    best_move = mutare
+
+
+            # next_move = minimax(current_state, True, 10, choices)[1]
+            new_state = make_move(player, best_move, current_state)
+            if validate_move(player, best_move):
                 current_state = new_state
                 if verify_win(player, current_state):
                     print("Player ", player, " has won!")
                     win = True
                     break
                 player = "A"
-                choices.remove(next_move)
+                choices.remove(best_move)
 
     if not win:
         print("Draw!")
@@ -203,34 +232,45 @@ def check_draw(current_table):
 def minimax(current_table, is_max_player, depth, current_choices):
     # base case
     global choice
+    current_table_copy = copy.deepcopy(current_table)
     if depth == 0 or verify_win("A", current_table):
-        return my_heuristic_minmax(current_table, "A")
+
+        return my_heuristic_minmax(current_table_copy, "A")
 
     elif depth == 0 or verify_win("B", current_table):
-        return my_heuristic_minmax(current_table, "B")
+
+        return my_heuristic_minmax(current_table_copy, "B")
+
+    # elif depth == 0:
+    #     return my_heuristic_minmax2(current_table, "B",is_max_player)
     elif check_draw(current_table):
         return 0, 0
 
     if is_max_player:
-        value = -math.inf
+        value = -9999
         for choice in current_choices:
             new_choices = copy.deepcopy(current_choices)
             new_choices.remove(choice)
-            minimax_result = minimax(make_move("B", choice, current_table), False, depth - 1, new_choices)
+            current_table_copy = copy.deepcopy(current_table)
+            minimax_result = minimax(make_move("B", choice, current_table_copy), False, depth - 1, new_choices)
             value = max(value, minimax_result[0])
+            # print("maximizing", value, choice)
             # print(minimax_result,"result")
     else:
         value = math.inf
         for choice in current_choices:
             new_choices = copy.deepcopy(current_choices)
             new_choices.remove(choice)
-            minimax_result = minimax(make_move("A", choice, current_table), True, depth - 1, new_choices)
+            current_table_copy = copy.deepcopy(current_table)
+            minimax_result = minimax(make_move("A", choice, current_table_copy), True, depth - 1, new_choices)
             # print(minimax_result,"result")
             value = min(value, minimax_result[0])
-
+            # print("minimizing", value, choice)
+    # print("value in minimax", value, choice)
     return value, choice
 
 
 final_board = game_with_minimax()
+
 for i in range(3):
     print(final_board[i])
